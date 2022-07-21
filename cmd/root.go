@@ -4,6 +4,8 @@ import (
     "os"
     "fmt"
 
+    "gitlab.com/wiggins.jonathan/dndcc/data"
+
     "github.com/spf13/cobra"
     tea "github.com/charmbracelet/bubbletea"
 )
@@ -34,18 +36,14 @@ type model struct {
 }
 
 func initialModel() model {
+    races, err := data.GetRaces()
+    if err != nil {
+        fmt.Println("Can't read from data source: ", err)
+        os.Exit(1)
+    }
+
     return model {
-        choices: []string{
-            "Dragonborn",
-            "Dwarf",
-            "Elf",
-            "Gnome",
-            "Half-Elf",
-            "Half-Orc",
-            "Halfling",
-            "Human",
-            "Tiefling",
-        },
+        choices: races,
         selected: make(map[int]struct{}),
     }
 }
