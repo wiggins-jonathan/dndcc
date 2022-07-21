@@ -7,7 +7,7 @@ import (
 )
 
 // Races in the player's hand book
-const phbraces = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master/FightClub5eXML/Sources/PlayersHandbook/races-phb.xml"
+const raceBaseURL = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master/FightClub5eXML/Sources"
 
 type Races struct {
 	XMLName    xml.Name `xml:"compendium"`
@@ -31,28 +31,48 @@ type Races struct {
 }
 
 func GetRaces() ([]string, error) {
-	// Read data source
-	resp, err := http.Get(phbraces)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	// Convert to bytes
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	// Unmarshal bytes to struct
-	var r Races
-	if err := xml.Unmarshal(body, &r); err != nil {
-		return nil, err
+	raceFiles := []string{
+		"/PlayersHandbook/races-phb.xml",
+		//"/DungeonMastersGuide/races-dmg.xml",
+		//"/PrincesOfTheApocalypse/races-eepc.xml",
+		//"/MordenkainensTomeOfFoes/races-mtf.xml",
+		//"/VolosGuideToMonsters/races-vgm.xml",
+		//"/GuildmastersGuideToRavnica/races-ggr.xml",
+		//"/EberronRisingFromTheLastWar/races-erlw.xml",
+		//"/AcquisitionsIncorporated/races-ai.xml",
+		//"/ExplorersGuideToWildemount/races-egw.xml",
+		//"/TheTortlePackage/races-ttp.xml",
+		//"/OneGrungAbove/races-oga.xml",
+		//"/MythicOdysseysOfTheros/races-mot.xml",
+		//"/TashasCauldronOfEverything/races-tce.xml",
+		//"/LocathahRising/races-lr.xml",
+		//"/AdventureWithMuk/races-awm.xml",
 	}
 
 	var races []string
-	for _, race := range r.Race {
-		races = append(races, race.Name)
+	for _, raceFile := range raceFiles {
+		// Read data source
+		resp, err := http.Get(raceBaseURL + raceFile)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+
+		// Convert to bytes
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		// Unmarshal bytes to struct
+		var r Races
+		if err := xml.Unmarshal(body, &r); err != nil {
+			return nil, err
+		}
+
+		for _, race := range r.Race {
+			races = append(races, race.Name)
+		}
 	}
 
 	return races, nil
