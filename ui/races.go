@@ -2,17 +2,96 @@ package ui
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
+	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
+	selectedItemStyle = lipgloss.NewStyle().MarginLeft(4).Background(lipgloss.Color("170"))
+	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
+	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
+	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
+)
+
+type item struct {
+	name string
+}
+
+func (i item) FilterValue() string { return i.name }
+
+type itemDelegate struct{}
+
+func (d itemDelegate) Height() int                               { return 1 }
+func (d itemDelegate) Spacing() int                              { return 0 }
+func (d itemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
+
+func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(item)
+	if !ok {
+		return
+	}
+
+	str := fmt.Sprintf("%s", i)
+
+	fn := itemStyle.Render
+	if index == m.Index() {
+		fn = func(s string) string {
+			return selectedItemStyle.Render(s)
+		}
+	}
+
+	fmt.Fprintf(w, fn(str))
+}
+
 type model struct {
-	choices  []string
-	cursor   int
-	selected map[int]struct{}
+	list   list.Model
+	items  []item
+	choice string
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.list.SetWidth(msg.Width)
+		return m, nil
+
+	case tea.KeyMsg: // Key presses
+		if m.list.FilterState() == list.Filtering { // don't match if filtering
+			break
+		}
+
+		switch keypress := msg.String(); keypress {
+		case "enter", "tab":
+			i, ok := m.list.SelectedItem().(item)
+			if ok {
+				m.choice = i.name
+			}
+			return m, tea.Quit
+		}
+	}
+
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
+	return m, cmd
+}
+
+func (m model) View() string {
+	if m.choice != "" {
+		return quitTextStyle.Render(fmt.Sprintf("%s? Sounds good to me.", m.choice))
+	}
+	return "\n" + m.list.View()
 }
 
 func InitialModel() model {
@@ -22,64 +101,21 @@ func InitialModel() model {
 		os.Exit(1)
 	}
 
-	return model{
-		choices:  races,
-		selected: make(map[int]struct{}),
-	}
-}
-
-func (m model) Init() tea.Cmd {
-	return nil
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// key presses
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
-			return m, tea.Quit
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-		case "home", "g": // go to top of list
-			if m.cursor > 0 {
-				m.cursor = 0
-			}
-		case "end", "G": // go to bottom of list
-			if m.cursor < len(m.choices)-1 {
-				m.cursor = len(m.choices) - 1
-			}
-		case "pgdown", "ctrl+f": // down 10
-		case "pgup", "ctrl+b": // up 10
-		case "enter", " ": // select
-			_, ok := m.selected[m.cursor]
-			if ok {
-				delete(m.selected, m.cursor)
-			} else {
-				m.selected[m.cursor] = struct{}{}
-			}
-		}
-	}
-	return m, nil
-}
-
-func (m model) View() string {
-	s := "Choose a race:\n"
-	for i, choice := range m.choices {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
+	var items []list.Item
+	for _, race := range races {
+		items = append(items, item{name: race})
 	}
 
-	s += "\n Press q to quit.\n"
-	return s
+	defaultWidth := 24
+	listHeight := 24
+
+	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
+	l.Title = "Choose a race:"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(true)
+	l.Styles.Title = titleStyle
+	l.Styles.PaginationStyle = paginationStyle
+	l.Styles.HelpStyle = helpStyle
+
+	return model{list: l}
 }
