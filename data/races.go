@@ -44,8 +44,8 @@ func GetRaces() ([]string, error) {
 	var wg sync.WaitGroup
 	var mt sync.Mutex
 	for _, raceFile := range raceFiles {
-		go func(raceFile string, wg *sync.WaitGroup) ([]string, error) {
-			wg.Add(1)
+		wg.Add(1)
+		go func(raceFile string) ([]string, error) {
 			defer wg.Done()
 			// Read data source
 			resp, err := http.Get(raceBaseURL + raceFile)
@@ -55,6 +55,7 @@ func GetRaces() ([]string, error) {
 			defer resp.Body.Close()
 
 			// Convert to bytes
+			mt.Lock()
 			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return nil, err
@@ -66,14 +67,13 @@ func GetRaces() ([]string, error) {
 				return nil, err
 			}
 
-			mt.Lock()
 			for _, race := range r.Race {
 				races = append(races, race.Name)
 			}
 			mt.Unlock()
 
 			return races, nil
-		}(raceFile, &wg)
+		}(raceFile)
 	}
 	wg.Wait()
 
