@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"sync"
-    "sort"
 )
 
 // Data source
@@ -89,6 +89,6 @@ func GetRaces() ([]string, error) {
 	}
 	wg.Wait()
 
-    sort.Strings(races)
+	sort.Strings(races)
 	return races, nil
 }
