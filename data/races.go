@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Races in the player's hand book
+// Data source
 const raceBaseURL = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master/FightClub5eXML/Sources"
 
 type Races struct {
