@@ -1,0 +1,12 @@
+default:
+  image: golang:1.18
+
+
+stages:
+  - go-fmt
+
+go-fmt:
+  stage: go-fmt
+  script:
+    - test -z "$(go fmt $(go list ./... | grep -v /vendor/))"
+    - go vet
