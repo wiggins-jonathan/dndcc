@@ -9,7 +9,7 @@ import (
 )
 
 // Data source
-const raceBaseURL = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master/FightClub5eXML/Sources"
+const raceBaseURL = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master"
 
 type Races struct {
 	XMLName    xml.Name `xml:"compendium"`
@@ -34,22 +34,10 @@ type Races struct {
 
 // Concurrently retrieve races from data source
 func GetRaces() ([]string, error) {
-	raceFiles := [15]string{
-		"/PlayersHandbook/races-phb.xml",
-		"/DungeonMastersGuide/races-dmg.xml",
-		"/PrincesOfTheApocalypse/races-eepc.xml",
-		"/MordenkainensTomeOfFoes/races-mtf.xml",
-		"/VolosGuideToMonsters/races-vgm.xml",
-		"/GuildmastersGuideToRavnica/races-ggr.xml",
-		"/EberronRisingFromTheLastWar/races-erlw.xml",
-		"/AcquisitionsIncorporated/races-ai.xml",
-		"/ExplorersGuideToWildemount/races-egw.xml",
-		"/TheTortlePackage/races-ttp.xml",
-		"/OneGrungAbove/races-oga.xml",
-		"/MythicOdysseysOfTheros/races-mot.xml",
-		"/TashasCauldronOfEverything/races-tce.xml",
-		"/LocathahRising/races-lr.xml",
-		"/AdventureWithMuk/races-awm.xml",
+	filter := "races-"
+	raceFiles, err := GetURLs(filter)
+	if err != nil {
+		return nil, err
 	}
 
 	var races []string
