@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const BaseURL  = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
+const BaseURL = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
 
 type CoreOnly struct {
 	XMLName xml.Name `xml:"collection"`
@@ -56,4 +56,17 @@ func GetURLs(filter string) ([]string, error) {
 	}
 
 	return coreURLs, nil
+}
+
+// Remove duplicate comparables from slice
+func unique[T comparable](s []T) []T {
+	inResult := make(map[T]bool)
+	var result []T
+	for _, item := range s {
+		if _, ok := inResult[item]; !ok {
+			inResult[item] = true
+			result = append(result, item)
+		}
+	}
+	return result
 }

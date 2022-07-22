@@ -89,6 +89,7 @@ func ListRaceNames() ([]string, error) {
 		}
 	}
 
+	list = unique(list)
 	sort.Strings(list)
 	return list, nil
 }
