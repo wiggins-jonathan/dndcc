@@ -73,7 +73,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
-		case "enter", "tab":
+		case "enter", " ":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
 				m.choice = i.name
