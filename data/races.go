@@ -8,9 +8,6 @@ import (
 	"sync"
 )
 
-// Data source
-const raceBaseURL = "https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master"
-
 type Races struct {
 	XMLName    xml.Name `xml:"compendium"`
 	Text       string   `xml:",chardata"`
@@ -48,7 +45,7 @@ func GetRaces() ([]Races, error) {
 		go func(raceFile string) ([]Races, error) {
 			defer wg.Done()
 			// Read data source
-			resp, err := http.Get(raceBaseURL + raceFile)
+			resp, err := http.Get(BaseURL + raceFile)
 			if err != nil {
 				return nil, err
 			}
