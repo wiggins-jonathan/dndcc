@@ -38,7 +38,7 @@ upload:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - |
-      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file bin/$CI_PROJECT_NAME $PACKAGE_REGISTRY/$CI_PROJECT_NAME
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file $CI_PROJECT_NAME $PACKAGE_REGISTRY/$CI_PROJECT_NAME
 
 release:
   stage: release
