@@ -53,7 +53,8 @@ release:
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
     - if: $CI_COMMIT_TAG
-  script: [echo "Releasing version ${VERSION}"]
+  script:
+    - echo "Releasing version ${VERSION}"
   release:
     tag_name: $CI_COMMIT_TAG
     description: "${CI_PROJECT_NAME}-${CI_COMMIT_TAG}"
