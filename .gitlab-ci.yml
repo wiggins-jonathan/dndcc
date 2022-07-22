@@ -3,6 +3,7 @@ default:
 
 variables:
   BINARY: dndcc.go
+  EXCLUDE_VENDORS: $(go list ./... | grep -v /vendor/)
 
 stages:
   - go-fmt
@@ -12,8 +13,8 @@ stages:
 go-fmt:
   stage: go-fmt
   script:
-    - test -z "$(go fmt $(go list ./... | grep -v /vendor/))"
-    - go vet
+    - go fmt $EXCLUDE_VENDORS
+    - go vet $EXCLUDE_VENDORS
 
 build:
   stage: build
@@ -34,6 +35,6 @@ release:
   rules: [if: $CI_COMMIT_TAG] # Run if tag created manually
   script: [echo "Creating release"]
   release:
-    tag_name: $CI_PIPELINE_ID
-    description: $CI_PIPELINE_ID
+    tag_name: $CI_PIPELINE_IID
+    description: $CI_PIPELINE_IID
     ref: $CI_COMMIT_SHA
