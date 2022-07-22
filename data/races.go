@@ -32,20 +32,20 @@ type Races struct {
 	} `xml:"race"`
 }
 
-// Concurrently retrieve races from data source
-func GetRaces() ([]string, error) {
+// Concurrently retrieve races from data sources & unmarshal
+func GetRaces() ([]Races, error) {
 	filter := "races-"
 	raceFiles, err := GetURLs(filter)
 	if err != nil {
 		return nil, err
 	}
 
-	var races []string
+	var races []Races
 	var wg sync.WaitGroup
 	var mt sync.Mutex
 	for _, raceFile := range raceFiles {
 		wg.Add(1)
-		go func(raceFile string) ([]string, error) {
+		go func(raceFile string) ([]Races, error) {
 			defer wg.Done()
 			// Read data source
 			resp, err := http.Get(raceBaseURL + raceFile)
@@ -67,9 +67,7 @@ func GetRaces() ([]string, error) {
 				return nil, err
 			}
 
-			for _, race := range r.Race {
-				races = append(races, race.Name)
-			}
+			races = append(races, r)
 			mt.Unlock()
 
 			return races, nil
@@ -77,6 +75,23 @@ func GetRaces() ([]string, error) {
 	}
 	wg.Wait()
 
-	sort.Strings(races)
 	return races, nil
+}
+
+// Return a []string of all race names
+func ListRaceNames() ([]string, error) {
+	r, err := GetRaces()
+	if err != nil || len(r) < 1 {
+		return nil, err
+	}
+
+	var list []string
+	for _, races := range r {
+		for _, race := range races.Race {
+			list = append(list, race.Name)
+		}
+	}
+
+	sort.Strings(list)
+	return list, nil
 }

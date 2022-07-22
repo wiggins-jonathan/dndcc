@@ -95,7 +95,7 @@ func (m model) View() string {
 }
 
 func InitialModel() model {
-	races, err := data.GetRaces()
+	races, err := data.ListRaceNames()
 	if err != nil || len(races) < 1 {
 		fmt.Println("Can't read from data source: ", err)
 		os.Exit(1)
