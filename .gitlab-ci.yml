@@ -2,7 +2,7 @@ default:
   image: golang:1.18
 
 variables:
-  PACKAGE_REGISTRY: $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$CI_PROJECT_NAME/$CI_PIPELINE_IID
+  PACKAGE_REGISTRY: $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$CI_PROJECT_NAME/$CI_COMMIT_TAG
 
 stages:
   - go-fmt
@@ -24,7 +24,7 @@ build:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - go mod download
-    - go build -race -o $CI_PROJECT_NAME
+    - go build -race -ldflags "-X ${CI_PROJECT_PATH}/cmd.Version=${CI_COMMIT_TAG}" -o $CI_PROJECT_NAME
   artifacts:
     paths:
       - $CI_PROJECT_NAME
@@ -49,8 +49,8 @@ release:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script: [echo "Creating release"]
   release:
-    tag_name: $CI_PIPELINE_IID
-    description: $CI_PIPELINE_IID
+    tag_name: $CI_COMMIT_TAG
+    description: "${CI_PROJECT_NAME}-${CI_COMMIT_TAG}"
     ref: $CI_COMMIT_SHA
     assets:
       links:
