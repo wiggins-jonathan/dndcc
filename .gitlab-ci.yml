@@ -3,7 +3,7 @@ default:
 
 variables:
   BINARY: dndcc.go
-  EXCLUDE_VENDORS: $(go list ./... | grep -v /vendor/)
+  EXCLUDE_VENDORS: "$(go list ./... | grep -v /vendor/)"
 
 stages:
   - go-fmt
