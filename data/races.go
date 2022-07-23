@@ -2,10 +2,7 @@ package data
 
 import (
 	"encoding/xml"
-	"io/ioutil"
-	"net/http"
 	"sort"
-	"sync"
 )
 
 type Races struct {
@@ -29,48 +26,12 @@ type Races struct {
 	} `xml:"race"`
 }
 
-// Concurrently retrieve races from data sources & unmarshal
+// Retrieve races from data sources
 func GetRaces() ([]Races, error) {
-	filter := "races-"
-	raceFiles, err := getURLs(filter)
+	races, err := getData(Races{}, "races-")
 	if err != nil {
 		return nil, err
 	}
-
-	var races []Races
-	var wg sync.WaitGroup
-	var mt sync.Mutex
-	for _, raceFile := range raceFiles {
-		wg.Add(1)
-		go func(raceFile string) ([]Races, error) {
-			defer wg.Done()
-			// Read data source
-			resp, err := http.Get(BaseURL + raceFile)
-			if err != nil {
-				return nil, err
-			}
-			defer resp.Body.Close()
-
-			// Convert to bytes
-			mt.Lock()
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-
-			// Unmarshal bytes to struct
-			var r Races
-			if err := xml.Unmarshal(body, &r); err != nil {
-				return nil, err
-			}
-
-			races = append(races, r)
-			mt.Unlock()
-
-			return races, nil
-		}(raceFile)
-	}
-	wg.Wait()
 
 	return races, nil
 }

@@ -1,3 +1,6 @@
+// Explain that first we have to hit the /Collections dir in FightClub5eXML to
+// get the location of the data we want, CoreOnly. Then explain that file points
+// to all the other data we want
 package data
 
 import (
@@ -29,7 +32,7 @@ func getURLs(filter string) ([]string, error) {
 	var coreURLs []string
 	for _, coreURL := range c.Doc {
 		if ok := strings.Contains(coreURL.Href, filter); ok {
-			coreURL.Href = strings.TrimLeft(coreURL.Href, "..")
+			coreURL.Href = strings.TrimLeft(coreURL.Href, "..") // Remove dots
 			coreURLs = append(coreURLs, coreURL.Href)
 		}
 	}
@@ -37,7 +40,7 @@ func getURLs(filter string) ([]string, error) {
 	return coreURLs, nil
 }
 
-// Given urls to a data source, unmarshal the data source to a generic, empty
+// Given url to a data source, unmarshal the data source to a generic, empty
 // data structure & return it full of data
 func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 	// Read data source
@@ -60,6 +63,30 @@ func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 	}
 
 	return data, nil
+}
+
+// Given a generic data type & filter, unmarshal the generic data type into a
+// slice of that type containing our data
+func getData[T any](data T, filter string) ([]T, error) {
+	files, err := getURLs(filter)
+	if err != nil {
+		return nil, err
+	}
+
+	var d []T
+	for _, file := range files {
+		func(file string) ([]T, error) {
+			datum, err := genericUnmarshal(&data, BaseURL+file)
+			if err != nil {
+				return nil, err
+			}
+
+			d = append(d, *datum)
+			return d, nil
+		}(file)
+	}
+
+	return d, nil
 }
 
 // Remove duplicates from a slice
