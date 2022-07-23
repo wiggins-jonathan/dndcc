@@ -18,31 +18,10 @@ type CoreOnly struct {
 	} `xml:"doc"`
 }
 
-// Parse an xml formatted list pointing to urls containing data on all the
-// 'core' 5e books
-func GetCoreData() (*CoreOnly, error) {
-	resp, err := http.Get(BaseURL + `/Collections/CoreOnly.xml`)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var c CoreOnly
-	if err := xml.Unmarshal(body, &c); err != nil {
-		return nil, err
-	}
-
-	return &c, nil
-}
-
-// Filter out specific list of data urls based on filter
-func GetURLs(filter string) ([]string, error) {
-	c, err := GetCoreData()
+// Query list of data sources at CoreOnly.xml & filter, returning a list of URLs
+// containing data
+func getURLs(filter string) ([]string, error) {
+	c, err := genericUnmarshal(&CoreOnly{}, BaseURL+`/Collections/CoreOnly.xml`)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +37,32 @@ func GetURLs(filter string) ([]string, error) {
 	return coreURLs, nil
 }
 
-// Remove duplicate comparables from slice
+// Given urls to a data source, unmarshal the data source to a generic, empty
+// data structure & return it full of data
+func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
+	// Read data source
+	resp, err := http.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	// Convert to bytes
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal bytes to struct
+	if err := xml.Unmarshal(body, data); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// Remove duplicates from a slice
 func unique[T comparable](s []T) []T {
 	inResult := make(map[T]bool)
 	var result []T

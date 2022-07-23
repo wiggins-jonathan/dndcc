@@ -32,7 +32,7 @@ type Races struct {
 // Concurrently retrieve races from data sources & unmarshal
 func GetRaces() ([]Races, error) {
 	filter := "races-"
-	raceFiles, err := GetURLs(filter)
+	raceFiles, err := getURLs(filter)
 	if err != nil {
 		return nil, err
 	}
