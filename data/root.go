@@ -48,7 +48,6 @@ func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
 
 	// Convert to bytes
@@ -68,11 +67,13 @@ func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 // Given a generic data type & filter, unmarshal the generic data type into a
 // slice of that type containing our data
 func getData[T any](data T, filter string) ([]T, error) {
+	// Get list of URLs filtered (by classes, races, spells, etc)
 	files, err := getURLs(filter)
 	if err != nil {
 		return nil, err
 	}
 
+	// Unmarshal all of the URLs pointing to xml & put in slice of generic type
 	var d []T
 	for _, file := range files {
 		func(file string) ([]T, error) {

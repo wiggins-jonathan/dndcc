@@ -26,7 +26,7 @@ type Races struct {
 	} `xml:"race"`
 }
 
-// Retrieve races from data sources
+// Retrieve races from all data sources
 func GetRaces() ([]Races, error) {
 	races, err := getData(Races{}, "races-")
 	if err != nil {
@@ -36,7 +36,7 @@ func GetRaces() ([]Races, error) {
 	return races, nil
 }
 
-// Return a []string of all race names
+// Return a []string containing all race names sorted & de-deuped
 func ListRaceNames() ([]string, error) {
 	r, err := GetRaces()
 	if err != nil || len(r) < 1 {
