@@ -21,11 +21,9 @@ var (
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
-type item struct {
-	name string
-}
+type item string
 
-func (i item) FilterValue() string { return i.name }
+func (i item) FilterValue() string { return string(i) }
 
 type itemDelegate struct{}
 
@@ -53,7 +51,6 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 type model struct {
 	list   list.Model
-	items  []item
 	choice string
 }
 
@@ -76,7 +73,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
-				m.choice = i.name
+				m.choice = string(i)
 			}
 			return m, tea.Quit
 		}
@@ -103,7 +100,7 @@ func InitialModel() model {
 
 	var items []list.Item
 	for _, race := range races {
-		items = append(items, item{name: race})
+		items = append(items, item(race))
 	}
 
 	defaultWidth := 24
