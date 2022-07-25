@@ -16,29 +16,29 @@ go-fmt:
     - go fmt $(go list ./... | grep -v /vendor/)
     - go vet $(go list ./... | grep -v /vendor/)
 
-.version:
-  before_script:
-    - export VERSION=$(git describe --tags --always)
-
 build:
-  extends: .version
   stage: build
   rules:
     # Build on every merge to master. Don't build on tag push
     - if: $CI_COMMIT_TAG
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  before_script:
+    - export VERSION=$(git describe --tags --always)
+    - echo "VERSION=${VERSION}" >> build.env
   script:
     - go mod download
     - go build -race -ldflags "-X gitlab.com/${CI_PROJECT_PATH}/cmd.Version=${VERSION}" -o $CI_PROJECT_NAME
   artifacts:
     paths:
       - $CI_PROJECT_NAME
+    reports:
+      dotenv: build.env
 
 upload:
-  extends: .version
   stage: upload
   image: curlimages/curl:latest
+  dependencies: [build]
   rules:
     - if: $CI_COMMIT_TAG
       when: never
