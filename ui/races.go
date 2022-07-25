@@ -70,6 +70,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
+		case "s": // toggle statusbar
+			if m.list.ShowStatusBar() {
+				m.list.SetShowStatusBar(false)
+				return m, nil
+			}
+			m.list.SetShowStatusBar(true)
+			return m, nil
+
 		case "enter", " ":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
