@@ -52,8 +52,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.races, cmd = m.races.Update(msg)
 		return m, cmd
 	}
-
-	return m, nil
 }
 
 // Prints the UI based on model state
