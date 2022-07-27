@@ -1,11 +1,6 @@
 package ui
 
 import (
-	"fmt"
-	"os"
-
-	"gitlab.com/wiggins.jonathan/dndcc/data"
-
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -20,82 +15,51 @@ var (
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
+type state int
+
+const (
+	showRaces state = iota
+)
+
 type model struct {
-	list   list.Model
-	choice string
+	state state
+	races raceModel
 }
 
+// Returns a model with the races view as default
 func NewModel() model {
-	races, err := data.ListRaceNames()
-	if err != nil || len(races) < 1 {
-		fmt.Println("Can't read from data source:", err)
-		os.Exit(1)
-	}
-
-	var items []list.Item
-	for _, race := range races {
-		items = append(items, item(race))
-	}
-
-	defaultWidth := 24
-	listHeight := 24
-
-	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
-	l.Title = "Choose a race:"
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(true)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
-
-	return model{list: l}
+	return model{state: showRaces, races: newRaceModel()}
 }
-
-type item string
-
-func (i item) FilterValue() string { return string(i) }
 
 func (m model) Init() tea.Cmd {
 	return nil
 }
 
+// Responds to msg & updates the model state accordingly
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.list.SetWidth(msg.Width)
-		return m, nil
-	case tea.KeyMsg: // Key presses
-		if m.list.FilterState() == list.Filtering { // don't match if filtering
-			break
-		}
+	var cmd tea.Cmd
 
+	switch msg := msg.(type) {
+	case tea.KeyMsg: // Key presses
 		switch keypress := msg.String(); keypress {
-		case "s": // toggle statusbar
-			if m.list.ShowStatusBar() {
-				m.list.SetShowStatusBar(false)
-				return m, nil
-			}
-			m.list.SetShowStatusBar(true)
-			return m, nil
-		case "enter", " ":
-			i, ok := m.list.SelectedItem().(item)
-			if ok {
-				m.choice = string(i)
-			}
-			return m, tea.Quit
 		case "ctrl+c": // Exit program no matter the state
 			return m, tea.Quit
 		}
 	}
 
-	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	switch m.state {
+	default:
+		m.races, cmd = m.races.Update(msg)
+		return m, cmd
+	}
+
+	return m, nil
 }
 
+// Prints the UI based on model state
 func (m model) View() string {
-	if m.choice != "" {
-		return quitTextStyle.Render(fmt.Sprintf("%s? Sounds good to me.", m.choice))
+	switch m.state {
+	default:
+		return m.races.View()
 	}
-	return "\n" + m.list.View()
 }
