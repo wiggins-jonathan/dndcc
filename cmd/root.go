@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
 	Long:    "dndcc is a 5th Edition Dungeons & Dragons Character Creator",
 	Version: Version, // Overridden by ldflags at build time
 	RunE: func(cmd *cobra.Command, args []string) error {
-		app := tea.NewProgram(ui.InitialModel())
+		app := tea.NewProgram(ui.NewModel())
 		if err := app.Start(); err != nil {
 			return err
 		}
