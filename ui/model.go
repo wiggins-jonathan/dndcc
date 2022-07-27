@@ -64,7 +64,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
 		return m, nil
-
 	case tea.KeyMsg: // Key presses
 		if m.list.FilterState() == list.Filtering { // don't match if filtering
 			break
@@ -78,12 +77,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.list.SetShowStatusBar(true)
 			return m, nil
-
 		case "enter", " ":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
 				m.choice = string(i)
 			}
+			return m, tea.Quit
+		case "ctrl+c": // Exit program no matter the state
 			return m, tea.Quit
 		}
 	}
