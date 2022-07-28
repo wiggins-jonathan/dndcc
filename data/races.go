@@ -27,7 +27,7 @@ type Races struct {
 }
 
 // Retrieve races from all data sources
-func GetRaces() ([]Races, error) {
+func NewRaces() ([]Races, error) {
 	races, err := getData(Races{}, "races-")
 	if err != nil {
 		return nil, err
@@ -36,9 +36,9 @@ func GetRaces() ([]Races, error) {
 	return races, nil
 }
 
-// Return a []string containing all race names sorted & de-deuped
+// Return a []string containing all race names sorted & de-duped
 func ListRaceNames() ([]string, error) {
-	r, err := GetRaces()
+	r, err := NewRaces()
 	if err != nil || len(r) < 1 {
 		return nil, err
 	}

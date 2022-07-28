@@ -11,12 +11,11 @@ import (
 )
 
 type raceModel struct {
-	//data  []data.Races
-	list   list.Model
-	choice string
+	list     list.Model
+	selected string
 }
 
-// Instatiates raceModel with a list of races
+// Instantiates raceModel with a list of races
 func newRaceModel() raceModel {
 	races, err := data.ListRaceNames()
 	if err != nil || len(races) < 1 {
@@ -42,11 +41,6 @@ func newRaceModel() raceModel {
 
 	return raceModel{list: l}
 }
-
-// This type & the FilterValue() method allow filtering the list
-type item string
-
-func (i item) FilterValue() string { return string(i) }
 
 func (r raceModel) Init() tea.Cmd {
 	return nil
