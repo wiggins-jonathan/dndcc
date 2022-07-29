@@ -6,6 +6,7 @@ variables:
 
 stages:
   - go-fmt
+  - version
   - build
   - upload
   - release
@@ -16,29 +17,50 @@ go-fmt:
     - go fmt $(go list ./... | grep -v /vendor/)
     - go vet $(go list ./... | grep -v /vendor/)
 
-build:
+version:
+  stage: version
+  script:
+    - export VERSION=$(git describe --tags --always)
+    - echo "VERSION=${VERSION}" >> version.env
+  artifacts:
+    reports:
+      dotenv: version.env
+
+docker:
   stage: build
+  image: docker:20.10.17
+  dependencies: [version]
+  services: [docker:dind]
+  variables:
+    IMAGE: $CI_REGISTRY_IMAGE:$VERSION
   rules:
-    # Build on every merge to master. Don't build on tag push
+    # Build on every merge to main. Don't build on tag push
     - if: $CI_COMMIT_TAG
       when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  before_script:
-    - export VERSION=$(git describe --tags --always)
-    - echo "VERSION=${VERSION}" >> build.env
+  script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+
+binary:
+  stage: build
+  dependencies: [version]
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - go mod download
     - go build -race -ldflags "-X gitlab.com/${CI_PROJECT_PATH}/cmd.Version=${VERSION}" -o $CI_PROJECT_NAME
   artifacts:
     paths:
       - $CI_PROJECT_NAME
-    reports:
-      dotenv: build.env
 
 upload:
   stage: upload
   image: curlimages/curl:latest
-  dependencies: [build]
+  dependencies: [version, binary]
   rules:
     - if: $CI_COMMIT_TAG
       when: never
