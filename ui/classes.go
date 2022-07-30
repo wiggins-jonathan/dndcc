@@ -23,9 +23,9 @@ func newClassModel() classModel {
 		os.Exit(1)
 	}
 
-	var items []list.Item
-	for _, class := range classes {
-		items = append(items, item(class))
+	items := make([]list.Item, len(classes))
+	for i, class := range classes {
+		items[i] = item(class)
 	}
 
 	defaultWidth := 24

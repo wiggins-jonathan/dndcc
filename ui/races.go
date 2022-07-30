@@ -23,9 +23,9 @@ func newRaceModel() raceModel {
 		os.Exit(1)
 	}
 
-	var items []list.Item
-	for _, race := range races {
-		items = append(items, item(race))
+	items := make([]list.Item, len(races))
+	for i, race := range races {
+		items[i] = item(race)
 	}
 
 	defaultWidth := 24

@@ -77,15 +77,15 @@ func getData[T any](data T, f string) ([]T, error) {
 	urls = filter(urls, f)
 
 	// Unmarshal all of the URLs pointing to xml & put in slice of generic type
-	var d []T
-	for _, url := range urls {
+	d := make([]T, len(urls))
+	for i, url := range urls {
 		func(url string) ([]T, error) {
 			datum, err := genericUnmarshal(&data, url)
 			if err != nil {
 				return nil, err
 			}
 
-			d = append(d, *datum)
+			d[i] = *datum
 			return d, nil
 		}(url)
 	}
