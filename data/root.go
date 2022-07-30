@@ -1,6 +1,10 @@
-// Explain that first we have to hit the /Collections dir in FightClub5eXML to
-// get the location of the data we want, CoreOnly. Then explain that file points
-// to all the other data we want
+/*
+  The source of all our data is located at https://github.com/kinkofer/FightClub5eXML
+  This repo has an almost exhaustive source in xml format, divided by rule book.
+  It also divides the data by its canonical value, i.e. - Core Rule books,
+  homebrew, Unearthed Arcana, etc. To get just the Core only data, parse the
+  `CoreOnly.xml` for a list of the location of only `core` data.
+*/
 package data
 
 import (
@@ -10,7 +14,7 @@ import (
 	"strings"
 )
 
-const BaseURL = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
+const BaseUrl = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
 
 type CoreOnly struct {
 	XMLName xml.Name `xml:"collection"`
@@ -21,23 +25,21 @@ type CoreOnly struct {
 	} `xml:"doc"`
 }
 
-// Query list of data sources at CoreOnly.xml & filter, returning a list of URLs
-// containing data
-func getURLs(filter string) ([]string, error) {
-	c, err := genericUnmarshal(&CoreOnly{}, BaseURL+`/Collections/CoreOnly.xml`)
+// Query list of all `CoreOnly` data sources at CoreOnly.xml, unmarshal, &
+// return in []string in /FightClub5eXML/Sources/<source book>/<data> format
+func getUrls() ([]string, error) {
+	c, err := genericUnmarshal(&CoreOnly{}, BaseUrl+`/Collections/CoreOnly.xml`)
 	if err != nil {
 		return nil, err
 	}
 
-	var coreURLs []string
-	for _, coreURL := range c.Doc {
-		if ok := strings.Contains(coreURL.Href, filter); ok {
-			coreURL.Href = strings.TrimLeft(coreURL.Href, "..") // Remove dots
-			coreURLs = append(coreURLs, coreURL.Href)
-		}
+	coreData := make([]string, len(c.Doc))
+	for i, coreHref := range c.Doc {
+		coreHref.Href = strings.TrimLeft(coreHref.Href, "..") // Remove dots
+		coreData[i] = coreHref.Href
 	}
 
-	return coreURLs, nil
+	return coreData, nil
 }
 
 // Given url to a data source, unmarshal the data source to a generic, empty
@@ -66,25 +68,26 @@ func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 
 // Given a generic data type & filter, unmarshal the generic data type into a
 // slice of that type containing our data
-func getData[T any](data T, filter string) ([]T, error) {
-	// Get list of URLs filtered (by classes, races, spells, etc)
-	files, err := getURLs(filter)
+func getData[T any](data T, f string) ([]T, error) {
+	// Get list of urls & filter (by classes, races, spells, etc)
+	urls, err := getUrls()
 	if err != nil {
 		return nil, err
 	}
+	urls = filter(urls, f)
 
 	// Unmarshal all of the URLs pointing to xml & put in slice of generic type
 	var d []T
-	for _, file := range files {
-		func(file string) ([]T, error) {
-			datum, err := genericUnmarshal(&data, BaseURL+file)
+	for _, url := range urls {
+		func(url string) ([]T, error) {
+			datum, err := genericUnmarshal(&data, url)
 			if err != nil {
 				return nil, err
 			}
 
 			d = append(d, *datum)
 			return d, nil
-		}(file)
+		}(url)
 	}
 
 	return d, nil
@@ -101,4 +104,16 @@ func unique[T comparable](s []T) []T {
 		}
 	}
 	return result
+}
+
+// Given a []string from getUrls, filter & return with BaseUrl attached
+func filter(urls []string, filter string) []string {
+	var filteredUrls []string
+	for _, url := range urls {
+		if ok := strings.Contains(url, filter); ok {
+			filteredUrls = append(filteredUrls, BaseUrl+url)
+		}
+	}
+
+	return filteredUrls
 }
