@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 const BaseUrl = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
@@ -78,6 +79,7 @@ func getData[T any](data T, f string) ([]T, error) {
 	urls = filter(urls, f)
 
 	// Unmarshal all of the URLs pointing to xml & put in slice of generic type
+	client := &http.Client{Timeout: 10 * time.Second}
 	var wg sync.WaitGroup
 	var mt sync.Mutex
 	d := make([]T, len(urls))
@@ -86,7 +88,7 @@ func getData[T any](data T, f string) ([]T, error) {
 		go func(j int, url string) ([]T, error) {
 			defer wg.Done()
 			// Read data source
-			resp, err := http.Get(url)
+			resp, err := client.Get(url)
 			if err != nil {
 				return nil, err
 			}
