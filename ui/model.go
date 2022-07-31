@@ -21,13 +21,15 @@ type state int
 const (
 	showRaces state = iota
 	showClasses
+	showBackgrounds
 )
 
 type model struct {
-	common  *commonModel
-	state   state
-	races   raceModel
-	classes classModel
+	common      *commonModel
+	state       state
+	races       raceModel
+	classes     classModel
+	backgrounds backgroundModel
 }
 
 // Returns a model with the races view as default
@@ -85,6 +87,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selected, ok := m.common.list.SelectedItem().(item)
 				if ok {
 					m.classes.selected = string(selected)
+
+					m.common.list.ResetFilter()
+					m.common.list.Select(0) // Reset cursor to beginning of list
+
+					m.backgrounds = newBackgroundModel(m.common)
+					m.state = showBackgrounds
+				}
+
+				return m, nil
+			case showBackgrounds:
+				selected, ok := m.common.list.SelectedItem().(item)
+				if ok {
+					m.backgrounds.selected = string(selected)
 				}
 				return m, tea.Quit
 			}
@@ -99,6 +114,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showClasses:
 		m.classes, cmd = m.classes.Update(msg)
 		return m, cmd
+	case showBackgrounds:
+		m.backgrounds, cmd = m.backgrounds.Update(msg)
+		return m, cmd
 	default:
 		return m, nil
 	}
@@ -106,12 +124,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // Prints the UI based on model state
 func (m model) View() string {
-	if m.races.selected != "" && m.classes.selected != "" {
+	if m.races.selected != "" && m.classes.selected != "" && m.backgrounds.selected != "" {
 		return quitTextStyle.Render(fmt.Sprintf("Human sacrifice! %s & %s living together! Mass hysteria!", m.races.selected, m.classes.selected))
 	}
 	switch m.state {
 	case showClasses:
 		return m.classes.View()
+	case showBackgrounds:
+		return m.backgrounds.View()
 	default:
 		return m.races.View()
 	}
