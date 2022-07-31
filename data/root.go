@@ -36,7 +36,7 @@ func getUrls() ([]string, error) {
 	coreData := make([]string, len(c.Doc))
 	for i, coreHref := range c.Doc {
 		coreHref.Href = strings.TrimLeft(coreHref.Href, "..") // Remove dots
-		coreData[i] = coreHref.Href
+		coreData[i] = BaseUrl+coreHref.Href
 	}
 
 	return coreData, nil
@@ -111,7 +111,7 @@ func filter(urls []string, filter string) []string {
 	var filteredUrls []string
 	for _, url := range urls {
 		if ok := strings.Contains(url, filter); ok {
-			filteredUrls = append(filteredUrls, BaseUrl+url)
+			filteredUrls = append(filteredUrls, url)
 		}
 	}
 
