@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 const BaseUrl = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
@@ -36,7 +37,7 @@ func getUrls() ([]string, error) {
 	coreData := make([]string, len(c.Doc))
 	for i, coreHref := range c.Doc {
 		coreHref.Href = strings.TrimLeft(coreHref.Href, "..") // Remove dots
-		coreData[i] = BaseUrl+coreHref.Href
+		coreData[i] = BaseUrl + coreHref.Href
 	}
 
 	return coreData, nil
@@ -77,18 +78,39 @@ func getData[T any](data T, f string) ([]T, error) {
 	urls = filter(urls, f)
 
 	// Unmarshal all of the URLs pointing to xml & put in slice of generic type
+	var wg sync.WaitGroup
+	var mt sync.Mutex
 	d := make([]T, len(urls))
 	for i, url := range urls {
-		func(url string) ([]T, error) {
-			datum, err := genericUnmarshal(&data, url)
+		wg.Add(1)
+		go func(j int, url string) ([]T, error) {
+			defer wg.Done()
+			// Read data source
+			resp, err := http.Get(url)
+			if err != nil {
+				return nil, err
+			}
+			defer resp.Body.Close()
+
+			// Convert to bytes
+			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return nil, err
 			}
 
-			d[i] = *datum
+			mt.Lock()
+			// Unmarshal bytes to struct
+			if err := xml.Unmarshal(body, &data); err != nil {
+				return nil, err
+			}
+
+			d[j] = data
+			mt.Unlock()
+
 			return d, nil
-		}(url)
+		}(i, url)
 	}
+	wg.Wait()
 
 	return d, nil
 }
