@@ -11,35 +11,28 @@ import (
 )
 
 type classModel struct {
-	list     list.Model
+	common   *commonModel
 	selected string
 }
 
 // Instantiates classModel with a list of races
-func newClassModel() classModel {
+func newClassModel(common *commonModel) classModel {
 	classes, err := data.ListClassNames()
 	if err != nil || len(classes) < 1 {
 		fmt.Println("Can't read from data source:", err)
 		os.Exit(1)
 	}
 
+	// Inject classes into common list
 	items := make([]list.Item, len(classes))
 	for i, class := range classes {
 		items[i] = item(class)
 	}
+	common.list.SetItems(items)
 
-	defaultWidth := 24
-	listHeight := 24
+	common.list.Title = "Choose a class:"
 
-	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
-	l.Title = "Choose a class:"
-	l.SetShowStatusBar(false)
-	l.SetFilteringEnabled(true)
-	l.Styles.Title = titleStyle
-	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
-
-	return classModel{list: l}
+	return classModel{common: common}
 }
 
 func (c classModel) Init() tea.Cmd {
@@ -49,31 +42,15 @@ func (c classModel) Init() tea.Cmd {
 func (c classModel) Update(msg tea.Msg) (classModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		c.list.SetWidth(msg.Width)
+		c.common.list.SetWidth(msg.Width)
 		return c, nil
-	case tea.KeyMsg:
-		if c.list.FilterState() == list.Filtering { // don't match if filtering
-			break
-		}
-
-		switch keypress := msg.String(); keypress {
-		case "s":
-			if c.list.ShowStatusBar() {
-				c.list.SetShowStatusBar(false)
-				return c, nil
-			}
-			c.list.SetShowStatusBar(true)
-			return c, nil
-		case "q":
-			return c, tea.Quit
-		}
 	}
 
 	var cmd tea.Cmd
-	c.list, cmd = c.list.Update(msg)
+	c.common.list, cmd = c.common.list.Update(msg)
 	return c, cmd
 }
 
 func (c classModel) View() string {
-	return "\n" + c.list.View()
+	return "\n" + c.common.list.View()
 }

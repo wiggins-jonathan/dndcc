@@ -24,6 +24,7 @@ const (
 )
 
 type model struct {
+	common  *commonModel
 	state   state
 	races   raceModel
 	classes classModel
@@ -31,7 +32,12 @@ type model struct {
 
 // Returns a model with the races view as default
 func NewModel() model {
-	return model{state: showRaces, races: newRaceModel()}
+	c := newCommonModel()
+	return model{
+		common: c,
+		state:  showRaces,
+		races:  newRaceModel(c),
+	}
 }
 
 // This type & the FilterValue() method allow filtering lists
@@ -45,25 +51,36 @@ func (m model) Init() tea.Cmd {
 
 // Responds to msg & updates the model state accordingly
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg: // Key presses
+		// Don't match keys if filtering
+		if m.common.list.FilterState() == list.Filtering {
+			break
+		}
+
 		switch keypress := msg.String(); keypress {
-		case "ctrl+c": // Exit program no matter the state
-			return m, tea.Quit
-		case "enter", " ": // Save selection & switch state
+		case "s":
+			if m.common.list.ShowStatusBar() {
+				m.common.list.SetShowStatusBar(false)
+				return m, nil
+			}
+			m.common.list.SetShowStatusBar(true)
+			return m, nil
+		case "enter", " ":  // Save selection & switch state
 			switch m.state {
 			case showRaces:
-				selected, ok := m.races.list.SelectedItem().(item)
+				selected, ok := m.common.list.SelectedItem().(item)
 				if ok {
 					m.races.selected = string(selected)
 				}
-				m.classes = newClassModel()
+				m.common.list.ResetFilter()
+
+				m.classes = newClassModel(m.common)
 				m.state = showClasses
-				return m, cmd
+
+				return m, nil
 			case showClasses:
-				selected, ok := m.classes.list.SelectedItem().(item)
+				selected, ok := m.common.list.SelectedItem().(item)
 				if ok {
 					m.classes.selected = string(selected)
 				}
@@ -72,6 +89,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	var cmd tea.Cmd
 	switch m.state {
 	case showRaces:
 		m.races, cmd = m.races.Update(msg)
