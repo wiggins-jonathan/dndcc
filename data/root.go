@@ -1,14 +1,15 @@
 /*
-  The source of all our data is located at https://github.com/kinkofer/FightClub5eXML
-  This repo has an almost exhaustive source in xml format, divided by rule book.
-  It also divides the data by its canonical value, i.e. - Core Rule books,
-  homebrew, Unearthed Arcana, etc. To get just the Core only data, parse the
-  `CoreOnly.xml` for a list of the location of only `core` data.
+The source of all our data is located at https://github.com/kinkofer/FightClub5eXML
+This repo has an almost exhaustive source in xml format, divided by rule book.
+It also divides the data by its canonical value, i.e. - Core Rule books,
+homebrew, Unearthed Arcana, etc. To get just the Core only data, parse the
+`CoreOnly.xml` for a list of the location of only `core` data.
 */
 package data
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -53,6 +54,10 @@ func genericUnmarshal[T any](data *T, endpoint string) (*T, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode > 299 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return nil, fmt.Errorf(string(body))
+	}
 
 	// Convert to bytes
 	body, err := ioutil.ReadAll(resp.Body)
@@ -93,6 +98,10 @@ func getData[T any](data T, f string) ([]T, error) {
 				return nil, err
 			}
 			defer resp.Body.Close()
+			if resp.StatusCode > 299 {
+				body, _ := ioutil.ReadAll(resp.Body)
+				return nil, fmt.Errorf(string(body))
+			}
 
 			// Convert to bytes
 			body, err := ioutil.ReadAll(resp.Body)
