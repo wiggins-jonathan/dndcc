@@ -24,8 +24,17 @@ func newCommonModel() *commonModel {
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
 
+	// Custom key definitions in help
+	l.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{
+			key.NewBinding(key.WithHelp("tab", "select")),
+		}
+	}
+
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
+			key.NewBinding(key.WithHelp("enter/tab/space", "select")),
+			key.NewBinding(key.WithHelp("esc", "reset")),
 			key.NewBinding(key.WithHelp("s", "status bar")),
 		}
 	}

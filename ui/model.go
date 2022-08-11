@@ -68,7 +68,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.common.list.SetShowStatusBar(true)
 			return m, nil
-		case "enter", " ": // Save selection & switch state
+		case "esc": // Reset selections & go back to classes
+			m.common.list.ResetFilter()
+			m.common.list.Select(0)
+			m.races = newRaceModel(m.common)
+			m.state = showRaces
+			return m, nil
+		case "enter", " ", "tab": // Save selection & switch state
 			switch m.state {
 			case showRaces:
 				selected, ok := m.common.list.SelectedItem().(item)
