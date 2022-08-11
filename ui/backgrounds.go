@@ -11,8 +11,9 @@ import (
 )
 
 type backgroundModel struct {
-	common   *commonModel
-	selected string
+	common        *commonModel
+	selected      string
+	selectedIndex int
 }
 
 // Instantiates raceModel with a list of races

@@ -11,8 +11,9 @@ import (
 )
 
 type classModel struct {
-	common   *commonModel
-	selected string
+	common        *commonModel
+	selected      string
+	selectedIndex int
 }
 
 // Instantiates classModel with a list of races

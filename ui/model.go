@@ -79,8 +79,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.state {
 			case showRaces:
 				selected, ok := m.common.list.SelectedItem().(item)
-				if ok {
+				if ok { // Get selected item & its position in the list
 					m.races.selected = string(selected)
+					m.races.selectedIndex = m.common.list.Index()
 				}
 
 				m.common.list.ResetFilter()
@@ -94,21 +95,38 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selected, ok := m.common.list.SelectedItem().(item)
 				if ok {
 					m.classes.selected = string(selected)
-
-					m.common.list.ResetFilter()
-					m.common.list.Select(0) // Reset cursor to beginning of list
-
-					m.backgrounds = newBackgroundModel(m.common)
-					m.state = showBackgrounds
+					m.classes.selectedIndex = m.common.list.Index()
 				}
+
+				m.common.list.ResetFilter()
+				m.common.list.Select(0) // Reset cursor to beginning of list
+
+				m.backgrounds = newBackgroundModel(m.common)
+				m.state = showBackgrounds
 
 				return m, nil
 			case showBackgrounds:
 				selected, ok := m.common.list.SelectedItem().(item)
 				if ok {
 					m.backgrounds.selected = string(selected)
+					m.classes.selectedIndex = m.common.list.Index()
 				}
 				return m, tea.Quit
+			}
+		case "shift+tab": // Go back to the previous selection
+			switch m.state {
+			case showClasses:
+				m.common.list.ResetFilter()
+				m.common.list.Select(m.races.selectedIndex) // we need to return to races.selected
+				m.races = newRaceModel(m.common)
+				m.state = showRaces
+				return m, nil
+			case showBackgrounds:
+				m.common.list.ResetFilter()
+				m.common.list.Select(m.classes.selectedIndex) // we need to return to races.selected
+				m.classes = newClassModel(m.common)
+				m.state = showClasses
+				return m, nil
 			}
 		}
 	}
@@ -132,7 +150,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // Prints the UI based on model state
 func (m model) View() string {
 	if m.races.selected != "" && m.classes.selected != "" && m.backgrounds.selected != "" {
-		return quitTextStyle.Render(fmt.Sprintf("Human sacrifice! %s & %s living together! Mass hysteria!", m.races.selected, m.classes.selected))
+		return quitTextStyle.Render(fmt.Sprintf("%s! %s & %s living together! Mass hysteria!", m.races.selected, m.classes.selected, m.backgrounds.selected))
 	}
 	switch m.state {
 	case showClasses:

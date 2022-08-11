@@ -28,12 +28,14 @@ func newCommonModel() *commonModel {
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			key.NewBinding(key.WithHelp("tab", "select")),
+			key.NewBinding(key.WithHelp("shift+tab", "back")),
 		}
 	}
 
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			key.NewBinding(key.WithHelp("enter/tab/space", "select")),
+			key.NewBinding(key.WithHelp("shift+tab", "back")),
 			key.NewBinding(key.WithHelp("esc", "reset")),
 			key.NewBinding(key.WithHelp("s", "status bar")),
 		}
