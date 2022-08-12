@@ -37,12 +37,7 @@ func NewRaces() ([]Races, error) {
 }
 
 // Return a []string containing all race names sorted & de-duped
-func ListRaceNames() ([]string, error) {
-	r, err := NewRaces()
-	if err != nil || len(r) < 1 {
-		return nil, err
-	}
-
+func ListRaceNames(r []Races) []string {
 	var list []string
 	for _, races := range r {
 		for _, race := range races.Race {
@@ -52,5 +47,5 @@ func ListRaceNames() ([]string, error) {
 
 	list = unique(list)
 	sort.Strings(list)
-	return list, nil
+	return list
 }

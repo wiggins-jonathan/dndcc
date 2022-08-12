@@ -18,13 +18,14 @@ type backgroundModel struct {
 
 // Instantiates raceModel with a list of races
 func newBackgroundModel(common *commonModel) backgroundModel {
-	backgrounds, err := data.ListBackgroundNames()
-	if err != nil || len(backgrounds) < 1 {
+	backgroundData, err := data.NewBackgrounds()
+	if err != nil || len(backgroundData) < 1 {
 		fmt.Println("Can't read from data source:", err)
 		os.Exit(1)
 	}
 
 	// Inject races into common list
+	backgrounds := data.ListBackgroundNames(backgroundData)
 	items := make([]list.Item, len(backgrounds))
 	for i, background := range backgrounds {
 		items[i] = item(background)

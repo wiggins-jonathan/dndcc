@@ -33,12 +33,7 @@ func NewBackgrounds() ([]Backgrounds, error) {
 }
 
 // Return a []string containing all background names sorted & de-duped
-func ListBackgroundNames() ([]string, error) {
-	b, err := NewBackgrounds()
-	if err != nil || len(b) < 1 {
-		return nil, err
-	}
-
+func ListBackgroundNames(b []Backgrounds) []string {
 	var list []string
 	for _, backgrounds := range b {
 		for _, background := range backgrounds.Background {
@@ -48,5 +43,5 @@ func ListBackgroundNames() ([]string, error) {
 
 	list = unique(list)
 	sort.Strings(list)
-	return list, nil
+	return list
 }

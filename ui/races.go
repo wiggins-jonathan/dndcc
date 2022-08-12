@@ -11,6 +11,7 @@ import (
 )
 
 type raceModel struct {
+	data.Races
 	common        *commonModel
 	selected      string
 	selectedIndex int
@@ -18,13 +19,14 @@ type raceModel struct {
 
 // Instantiates raceModel with a list of races
 func newRaceModel(common *commonModel) raceModel {
-	races, err := data.ListRaceNames()
-	if err != nil || len(races) < 1 {
+	raceData, err := data.NewRaces()
+	if err != nil || len(raceData) < 1 {
 		fmt.Println("Can't read from data source:", err)
 		os.Exit(1)
 	}
 
 	// Inject races into common list
+	races := data.ListRaceNames(raceData)
 	items := make([]list.Item, len(races))
 	for i, race := range races {
 		items[i] = item(race)

@@ -45,12 +45,7 @@ func NewClasses() ([]Classes, error) {
 }
 
 // Return a []string of all class names sorted & de-duped
-func ListClassNames() ([]string, error) {
-	c, err := NewClasses()
-	if err != nil || len(c) < 1 {
-		return nil, err
-	}
-
+func ListClassNames(c []Classes) []string {
 	var list []string
 	for _, classes := range c {
 		list = append(list, classes.Class.Name)
@@ -58,5 +53,5 @@ func ListClassNames() ([]string, error) {
 
 	list = unique(list)
 	sort.Strings(list)
-	return list, nil
+	return list
 }
