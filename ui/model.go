@@ -139,9 +139,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showBackgrounds:
 		m.backgrounds, cmd = m.backgrounds.Update(msg)
 		return m, cmd
-	default:
-		return m, nil
 	}
+
+	return m, nil
 }
 
 // Prints the UI based on model state
@@ -158,11 +158,13 @@ func (m model) View() string {
 		))
 	}
 	switch m.state {
+	case showRaces:
+		return m.races.View()
 	case showClasses:
 		return m.classes.View()
 	case showBackgrounds:
 		return m.backgrounds.View()
-	default:
-		return m.races.View()
 	}
+
+	return ""
 }
