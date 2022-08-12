@@ -146,8 +146,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // Prints the UI based on model state
 func (m model) View() string {
-	if m.races.selected != "" && m.classes.selected != "" && m.backgrounds.selected != "" {
-		return quitTextStyle.Render(fmt.Sprintf("%s! %s & %s living together! Mass hysteria!", m.races.selected, m.classes.selected, m.backgrounds.selected))
+	// Temporary exit message
+	if m.races.selected != "" &&
+		m.classes.selected != "" &&
+		m.backgrounds.selected != "" {
+		return quitTextStyle.Render(fmt.Sprintf(
+			"%s! %s & %s living together! Mass hysteria!",
+			m.races.selected,
+			m.classes.selected,
+			m.backgrounds.selected,
+		))
 	}
 	switch m.state {
 	case showClasses:
