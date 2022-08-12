@@ -85,7 +85,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.common.list.Select(0) // Reset cursor to beginning of list
 
 				m.classes = newClassModel(m.common)
-				m.state = showClasses
+				m.state++
 
 				return m, nil
 			case showClasses:
@@ -99,7 +99,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.common.list.Select(0) // Reset cursor to beginning of list
 
 				m.backgrounds = newBackgroundModel(m.common)
-				m.state = showBackgrounds
+				m.state++
 
 				return m, nil
 			case showBackgrounds:
@@ -116,13 +116,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.common.list.ResetFilter()
 				m.common.list.Select(m.races.selectedIndex) // we need to return to races.selected
 				m.races = newRaceModel(m.common)
-				m.state = showRaces
+				m.state--
 				return m, nil
 			case showBackgrounds:
 				m.common.list.ResetFilter()
 				m.common.list.Select(m.classes.selectedIndex) // we need to return to races.selected
 				m.classes = newClassModel(m.common)
-				m.state = showClasses
+				m.state--
 				return m, nil
 			}
 		}
