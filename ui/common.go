@@ -44,6 +44,11 @@ func newCommonModel() *commonModel {
 	return &commonModel{list: l}
 }
 
+// This type & the FilterValue() method allow filtering lists
+type item string
+
+func (i item) FilterValue() string { return string(i) }
+
 type itemDelegate struct{}
 
 func (d itemDelegate) Height() int                               { return 1 }

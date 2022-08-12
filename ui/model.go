@@ -26,8 +26,10 @@ const (
 )
 
 type model struct {
-	common      *commonModel
-	state       state
+	common *commonModel
+	state  state
+
+	// submodels
 	races       raceModel
 	classes     classModel
 	backgrounds backgroundModel
@@ -43,11 +45,6 @@ func NewModel() model {
 	}
 }
 
-// This type & the FilterValue() method allow filtering lists
-type item string
-
-func (i item) FilterValue() string { return string(i) }
-
 func (m model) Init() tea.Cmd {
 	return nil
 }
@@ -62,14 +59,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
-		case "s":
+		case "s": // Toggle the status bar
 			if m.common.list.ShowStatusBar() {
 				m.common.list.SetShowStatusBar(false)
 				return m, nil
 			}
 			m.common.list.SetShowStatusBar(true)
 			return m, nil
-		case "esc": // Reset selections & go back to classes
+		case "esc": // Reset selections & go back to races
 			m.common.list.ResetFilter()
 			m.common.list.Select(0)
 			m.races = newRaceModel(m.common)
