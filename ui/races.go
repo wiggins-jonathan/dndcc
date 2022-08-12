@@ -6,7 +6,6 @@ import (
 
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -27,10 +26,7 @@ func newRaceModel(common *commonModel) raceModel {
 
 	// Inject races into common list
 	races := data.ListRaceNames(raceData)
-	items := make([]list.Item, len(races))
-	for i, race := range races {
-		items[i] = item(race)
-	}
+	items := stringToItem(races)
 	common.list.SetItems(items)
 
 	common.list.Title = "Choose a race:"

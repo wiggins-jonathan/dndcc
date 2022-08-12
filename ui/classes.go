@@ -6,7 +6,6 @@ import (
 
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -27,10 +26,7 @@ func newClassModel(common *commonModel) classModel {
 
 	// Inject classes into common list
 	classes := data.ListClassNames(classData)
-	items := make([]list.Item, len(classes))
-	for i, class := range classes {
-		items[i] = item(class)
-	}
+	items := stringToItem(classes)
 	common.list.SetItems(items)
 
 	common.list.Title = "Choose a class:"

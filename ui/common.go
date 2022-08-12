@@ -72,3 +72,13 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 	fmt.Fprintf(w, fn(str))
 }
+
+// Utility function to transform a []string to []list.Item
+func stringToItem(s []string) []list.Item {
+	items := make([]list.Item, len(s))
+	for i, v := range s {
+		items[i] = item(v)
+	}
+
+	return items
+}

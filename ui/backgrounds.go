@@ -6,7 +6,6 @@ import (
 
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -26,10 +25,7 @@ func newBackgroundModel(common *commonModel) backgroundModel {
 
 	// Inject races into common list
 	backgrounds := data.ListBackgroundNames(backgroundData)
-	items := make([]list.Item, len(backgrounds))
-	for i, background := range backgrounds {
-		items[i] = item(background)
-	}
+	items := stringToItem(backgrounds)
 	common.list.SetItems(items)
 
 	common.list.Title = "Choose a background:"
