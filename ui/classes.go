@@ -16,7 +16,7 @@ type classModel struct {
 	selected string
 }
 
-// Instantiates classModel with a list of races
+// Instantiates classModel with a list of classes
 func newClassModel() classModel {
 	d, err := data.NewClasses()
 	if err != nil || len(d) < 1 {

@@ -16,7 +16,7 @@ type backgroundModel struct {
 	selected string
 }
 
-// Instantiates raceModel with a list of races
+// Instantiates backgroundModel with a list of backgrounds
 func newBackgroundModel() backgroundModel {
 	d, err := data.NewBackgrounds()
 	if err != nil || len(d) < 1 {
@@ -24,7 +24,7 @@ func newBackgroundModel() backgroundModel {
 		os.Exit(1)
 	}
 
-	// Inject races into list
+	// Inject backgrounds into list
 	backgrounds := data.ListBackgroundNames(d)
 	items := stringToItem(backgrounds)
 	l := newListModel()

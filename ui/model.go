@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -68,7 +69,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.state {
 			case showRaces:
 				selected, ok := m.races.list.SelectedItem().(item)
-				if ok { // Get selected item & its position in the list
+				if ok { // Set selected item
 					m.races.selected = string(selected)
 				}
 
