@@ -10,7 +10,7 @@ import (
 )
 
 func newListModel() list.Model {
-	listWidth := 24
+	listWidth := 79
 	listHeight := 24
 	l := list.New([]list.Item{}, itemDelegate{}, listWidth, listHeight)
 
