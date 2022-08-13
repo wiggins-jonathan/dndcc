@@ -17,7 +17,7 @@ type raceModel struct {
 }
 
 // Instantiates raceModel with a list of races
-func newRaceModel() raceModel {
+func NewRaceModel() raceModel {
 	d, err := data.NewRaces()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)

@@ -17,7 +17,7 @@ type featModel struct {
 }
 
 // Instantiates featModel with a list of feats
-func newFeatModel() featModel {
+func NewFeatModel() featModel {
 	d, err := data.NewFeats()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)

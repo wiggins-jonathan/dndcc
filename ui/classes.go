@@ -17,7 +17,7 @@ type classModel struct {
 }
 
 // Instantiates classModel with a list of classes
-func newClassModel() classModel {
+func NewClassModel() classModel {
 	d, err := data.NewClasses()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)

@@ -17,7 +17,7 @@ type backgroundModel struct {
 }
 
 // Instantiates backgroundModel with a list of backgrounds
-func newBackgroundModel() backgroundModel {
+func NewBackgroundModel() backgroundModel {
 	d, err := data.NewBackgrounds()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)

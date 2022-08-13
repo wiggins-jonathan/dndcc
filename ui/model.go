@@ -41,10 +41,10 @@ type model struct {
 func NewModel() model {
 	return model{
 		state:       showRaces,
-		races:       newRaceModel(),
-		classes:     newClassModel(),
-		backgrounds: newBackgroundModel(),
-		feats:       newFeatModel(),
+		races:       NewRaceModel(),
+		classes:     NewClassModel(),
+		backgrounds: NewBackgroundModel(),
+		feats:       NewFeatModel(),
 	}
 }
 
