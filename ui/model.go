@@ -23,6 +23,7 @@ const (
 	showRaces state = iota
 	showClasses
 	showBackgrounds
+	showFeats
 )
 
 type model struct {
@@ -32,6 +33,7 @@ type model struct {
 	races       raceModel
 	classes     classModel
 	backgrounds backgroundModel
+	feats       featModel
 }
 
 // Returns a model with the races view as default
@@ -41,6 +43,7 @@ func NewModel() model {
 		races:       newRaceModel(),
 		classes:     newClassModel(),
 		backgrounds: newBackgroundModel(),
+		feats:       newFeatModel(),
 	}
 }
 
@@ -82,11 +85,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.backgrounds, cmd = m.backgrounds.Update(msg)
 				m.state++
 
-				return m, nil
+				return m, cmd
 			case showBackgrounds:
 				selected, ok := m.backgrounds.list.SelectedItem().(item)
 				if ok {
 					m.backgrounds.selected = string(selected)
+				}
+
+				m.feats, cmd = m.feats.Update(msg)
+				m.state++
+
+				return m, cmd
+			case showFeats:
+				selected, ok := m.feats.list.SelectedItem().(item)
+				if ok {
+					m.feats.selected = string(selected)
 				}
 				return m, tea.Quit
 			}
@@ -98,6 +111,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			case showBackgrounds:
 				m.classes, cmd = m.classes.Update(msg)
+				m.state--
+				return m, cmd
+			case showFeats:
+				m.backgrounds, cmd = m.backgrounds.Update(msg)
 				m.state--
 				return m, cmd
 			}
@@ -114,6 +131,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showBackgrounds:
 		m.backgrounds, cmd = m.backgrounds.Update(msg)
 		return m, cmd
+	case showFeats:
+		m.feats, cmd = m.feats.Update(msg)
+		return m, cmd
 	}
 
 	return m, cmd
@@ -124,7 +144,8 @@ func (m model) View() string {
 	// Temporary exit message
 	if m.races.selected != "" &&
 		m.classes.selected != "" &&
-		m.backgrounds.selected != "" {
+		m.backgrounds.selected != "" &&
+		m.feats.selected != "" {
 		return quitTextStyle.Render(fmt.Sprintf(
 			"%s! %s & %s living together! Mass hysteria!",
 			m.races.selected,
@@ -139,6 +160,8 @@ func (m model) View() string {
 		return m.classes.View()
 	case showBackgrounds:
 		return m.backgrounds.View()
+	case showFeats:
+		return m.feats.View()
 	}
 
 	return ""
