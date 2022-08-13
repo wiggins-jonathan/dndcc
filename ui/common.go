@@ -9,11 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type commonModel struct {
-	list list.Model
-}
-
-func newCommonModel() *commonModel {
+func newListModel() list.Model {
 	listWidth := 24
 	listHeight := 24
 	l := list.New([]list.Item{}, itemDelegate{}, listWidth, listHeight)
@@ -41,7 +37,7 @@ func newCommonModel() *commonModel {
 		}
 	}
 
-	return &commonModel{list: l}
+	return l
 }
 
 // This type & the FilterValue() method allow filtering lists

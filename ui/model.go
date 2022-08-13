@@ -26,8 +26,7 @@ const (
 )
 
 type model struct {
-	common *commonModel
-	state  state
+	state state
 
 	// submodels
 	races       raceModel
@@ -37,11 +36,11 @@ type model struct {
 
 // Returns a model with the races view as default
 func NewModel() model {
-	c := newCommonModel()
 	return model{
-		common: c,
-		state:  showRaces,
-		races:  newRaceModel(c),
+		state:       showRaces,
+		races:       newRaceModel(),
+		classes:     newClassModel(),
+		backgrounds: newBackgroundModel(),
 	}
 }
 
@@ -51,84 +50,60 @@ func (m model) Init() tea.Cmd {
 
 // Responds to msg & updates the model state accordingly
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg: // Key presses
 		// Don't match keys if filtering
-		if m.common.list.FilterState() == list.Filtering {
+		if m.races.list.FilterState() == list.Filtering ||
+			m.classes.list.FilterState() == list.Filtering ||
+			m.backgrounds.list.FilterState() == list.Filtering {
 			break
 		}
 
 		switch keypress := msg.String(); keypress {
-		case "s": // Toggle the status bar
-			if m.common.list.ShowStatusBar() {
-				m.common.list.SetShowStatusBar(false)
-				return m, nil
-			}
-			m.common.list.SetShowStatusBar(true)
-			return m, nil
-		case "esc": // Reset selections & go back to races
-			m.common.list.ResetFilter()
-			m.common.list.Select(0)
-			m.races = newRaceModel(m.common)
-			m.state = showRaces
-			return m, nil
 		case "enter", " ", "tab": // Save selection & switch state
 			switch m.state {
 			case showRaces:
-				selected, ok := m.common.list.SelectedItem().(item)
+				selected, ok := m.races.list.SelectedItem().(item)
 				if ok { // Get selected item & its position in the list
 					m.races.selected = string(selected)
-					m.races.selectedIndex = m.common.list.Index()
 				}
 
-				m.common.list.ResetFilter()
-				m.common.list.Select(0) // Reset cursor to beginning of list
-
-				m.classes = newClassModel(m.common)
+				m.classes, cmd = m.classes.Update(msg)
 				m.state++
 
-				return m, nil
+				return m, cmd
 			case showClasses:
-				selected, ok := m.common.list.SelectedItem().(item)
+				selected, ok := m.classes.list.SelectedItem().(item)
 				if ok {
 					m.classes.selected = string(selected)
-					m.classes.selectedIndex = m.common.list.Index()
 				}
 
-				m.common.list.ResetFilter()
-				m.common.list.Select(0) // Reset cursor to beginning of list
-
-				m.backgrounds = newBackgroundModel(m.common)
+				m.backgrounds, cmd = m.backgrounds.Update(msg)
 				m.state++
 
 				return m, nil
 			case showBackgrounds:
-				selected, ok := m.common.list.SelectedItem().(item)
+				selected, ok := m.backgrounds.list.SelectedItem().(item)
 				if ok {
 					m.backgrounds.selected = string(selected)
-					m.classes.selectedIndex = m.common.list.Index()
 				}
 				return m, tea.Quit
 			}
 		case "shift+tab": // Go back to the previous selection
 			switch m.state {
 			case showClasses:
-				m.common.list.ResetFilter()
-				m.common.list.Select(m.races.selectedIndex) // we need to return to races.selected
-				m.races = newRaceModel(m.common)
+				m.races, cmd = m.races.Update(msg)
 				m.state--
-				return m, nil
+				return m, cmd
 			case showBackgrounds:
-				m.common.list.ResetFilter()
-				m.common.list.Select(m.classes.selectedIndex) // we need to return to races.selected
-				m.classes = newClassModel(m.common)
+				m.classes, cmd = m.classes.Update(msg)
 				m.state--
-				return m, nil
+				return m, cmd
 			}
 		}
 	}
 
-	var cmd tea.Cmd
 	switch m.state {
 	case showRaces:
 		m.races, cmd = m.races.Update(msg)
@@ -141,7 +116,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 	}
 
-	return m, nil
+	return m, cmd
 }
 
 // Prints the UI based on model state
