@@ -6,6 +6,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	minHeight = 4
+	minWidth  = 30
+)
+
 var (
 	lg                = lipgloss.NewStyle()
 	titleStyle        = lg.MarginLeft(2).Foreground(lipgloss.Color("#0099ff"))
@@ -25,7 +30,9 @@ const (
 )
 
 type model struct {
-	state state
+	state  state
+	height int
+	width  int
 
 	// submodels
 	races       raceModel
@@ -53,6 +60,9 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.height = msg.Height
+		m.width = msg.Width
 	case tea.KeyMsg: // Key presses
 		// Don't match keys if filtering
 		if m.races.list.FilterState() == list.Filtering ||
@@ -140,6 +150,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // Prints the UI based on model state
 func (m model) View() string {
+	if m.height < minHeight || m.width < minWidth {
+		return "Window too small.\nEnlarge viewing area."
+	}
+
 	switch m.state {
 	case showRaces:
 		return m.races.View()
