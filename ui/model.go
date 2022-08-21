@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -13,7 +11,6 @@ var (
 	titleStyle        = lg.MarginLeft(2).Foreground(lipgloss.Color("#0099ff"))
 	itemStyle         = lg.PaddingLeft(4)
 	selectedItemStyle = lg.MarginLeft(4).Background(lipgloss.Color("#ff3399")).Bold(true)
-	quitTextStyle     = lg.Margin(1, 0, 2, 4)
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 )
@@ -102,7 +99,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if ok {
 					m.feats.selected = string(selected)
 				}
-				return m, tea.Quit
+
+				return m, cmd
 			}
 		case "shift+tab": // Go back to the previous selection
 			switch m.state {
@@ -142,18 +140,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // Prints the UI based on model state
 func (m model) View() string {
-	// Temporary exit message
-	if m.races.selected != "" &&
-		m.classes.selected != "" &&
-		m.backgrounds.selected != "" &&
-		m.feats.selected != "" {
-		return quitTextStyle.Render(fmt.Sprintf(
-			"%s! %s & %s living together! Mass hysteria!",
-			m.races.selected,
-			m.classes.selected,
-			m.backgrounds.selected,
-		))
-	}
 	switch m.state {
 	case showRaces:
 		return m.races.View()
