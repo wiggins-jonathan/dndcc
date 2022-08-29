@@ -33,6 +33,7 @@ type model struct {
 	state  state
 	height int
 	width  int
+	footer *footer
 
 	// submodels
 	races       raceModel
@@ -45,6 +46,7 @@ type model struct {
 func NewModel() model {
 	return model{
 		state:       showRaces,
+		footer:      NewFooter(),
 		races:       NewRaceModel(),
 		classes:     NewClassModel(),
 		backgrounds: NewBackgroundModel(),
@@ -78,6 +80,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selected, ok := m.races.list.SelectedItem().(item)
 				if ok { // Set selected item
 					m.races.selected = string(selected)
+					m.footer.RaceSelected = string(selected)
 				}
 
 				m.classes, cmd = m.classes.Update(msg)
@@ -88,6 +91,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selected, ok := m.classes.list.SelectedItem().(item)
 				if ok {
 					m.classes.selected = string(selected)
+					m.footer.ClassSelected = string(selected)
 				}
 
 				m.backgrounds, cmd = m.backgrounds.Update(msg)
@@ -98,6 +102,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				selected, ok := m.backgrounds.list.SelectedItem().(item)
 				if ok {
 					m.backgrounds.selected = string(selected)
+					m.footer.BackgroundSelected = string(selected)
 				}
 
 				m.feats, cmd = m.feats.Update(msg)
@@ -154,16 +159,17 @@ func (m model) View() string {
 		return "Window too small.\nEnlarge viewing area."
 	}
 
+	var view string
 	switch m.state {
 	case showRaces:
-		return m.races.View()
+		view = m.races.View()
 	case showClasses:
-		return m.classes.View()
+		view = m.classes.View()
 	case showBackgrounds:
-		return m.backgrounds.View()
+		view = m.backgrounds.View()
 	case showFeats:
-		return m.feats.View()
+		view = m.feats.View()
 	}
 
-	return ""
+	return lipgloss.JoinVertical(lipgloss.Top, view, m.footer.View())
 }
