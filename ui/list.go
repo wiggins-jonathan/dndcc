@@ -4,38 +4,18 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func newListModel() list.Model {
-	listWidth := 79
-	listHeight := 24
-	l := list.New([]list.Item{}, itemDelegate{}, listWidth, listHeight)
+	l := list.New([]list.Item{}, itemDelegate{}, 35, 35)
 
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(true)
+	l.SetShowHelp(false)
 	l.Styles.Title = titleStyle
 	l.Styles.PaginationStyle = paginationStyle
-	l.Styles.HelpStyle = helpStyle
-
-	// Custom key definitions in help
-	l.AdditionalShortHelpKeys = func() []key.Binding {
-		return []key.Binding{
-			key.NewBinding(key.WithHelp("tab", "select")),
-			key.NewBinding(key.WithHelp("shift+tab", "back")),
-		}
-	}
-
-	l.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{
-			key.NewBinding(key.WithHelp("enter/tab/space", "select")),
-			key.NewBinding(key.WithHelp("shift+tab", "back")),
-			key.NewBinding(key.WithHelp("esc", "reset")),
-			key.NewBinding(key.WithHelp("s", "status bar")),
-		}
-	}
 
 	return l
 }
