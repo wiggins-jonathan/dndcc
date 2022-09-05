@@ -23,9 +23,20 @@ func (f *footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (f *footer) View() string {
-	raceSelected := itemStyle.Render(f.RaceSelected)
-	classSelected := itemStyle.Render(f.ClassSelected)
-	backgroundSelected := itemStyle.Render(f.BackgroundSelected)
+	raceSelected := footerUnselected.Render(f.RaceSelected)
+	if f.RaceSelected != "Race" {
+		raceSelected = footerSelected.Render(f.RaceSelected)
+	}
 
-	return raceSelected + classSelected + backgroundSelected
+	classSelected := footerUnselected.Render(f.ClassSelected)
+	if f.ClassSelected != "Class" {
+		classSelected = footerSelected.Render(f.ClassSelected)
+	}
+
+	backgroundSelected := footerUnselected.Render(f.BackgroundSelected)
+	if f.BackgroundSelected != "Background" {
+		backgroundSelected = footerSelected.Render(f.BackgroundSelected)
+	}
+
+	return "\n" + raceSelected + classSelected + backgroundSelected
 }

@@ -19,4 +19,7 @@ var (
 	detailsStyle      = lg.PaddingLeft(4).Width(85)
 	detailName        = lg.Foreground(blue)
 	listStyle         = lg.PaddingLeft(4)
+
+	footerUnselected = lg.PaddingLeft(4).Foreground(lipgloss.Color("#5c5c5c"))
+	footerSelected   = lg.PaddingLeft(4).Foreground(green)
 )
