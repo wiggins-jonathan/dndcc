@@ -35,12 +35,13 @@ type model struct {
 
 // Returns a model with the races view as default
 func NewModel() model {
+	f := NewFooter()
 	return model{
 		state:       showRaces,
-		footer:      NewFooter(),
-		races:       NewRaceModel(),
-		classes:     NewClassModel(),
-		backgrounds: NewBackgroundModel(),
+		footer:      f,
+		races:       NewRaceModel(f),
+		classes:     NewClassModel(f),
+		backgrounds: NewBackgroundModel(f),
 		feats:       NewFeatModel(),
 	}
 }

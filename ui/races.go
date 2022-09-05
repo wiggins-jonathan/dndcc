@@ -16,10 +16,11 @@ type raceModel struct {
 	data     []data.Races
 	list     list.Model
 	selected string
+	footer   *footer
 }
 
 // Instantiates raceModel with a list of races
-func NewRaceModel() raceModel {
+func NewRaceModel(f *footer) raceModel {
 	d, err := data.NewRaces()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)
@@ -34,7 +35,7 @@ func NewRaceModel() raceModel {
 
 	l.Title = "Choose a race:"
 
-	return raceModel{data: d, list: l}
+	return raceModel{data: d, list: l, footer: f}
 }
 
 func (r raceModel) Init() tea.Cmd {
@@ -55,6 +56,7 @@ func (r raceModel) Update(msg tea.Msg) (raceModel, tea.Cmd) {
 		case "esc": // Reset selection
 			r.list.ResetFilter()
 			r.list.Select(0)
+			r.footer.RaceSelected = "Race"
 			return r, nil
 		case "s":
 			if r.list.ShowStatusBar() {

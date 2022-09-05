@@ -14,10 +14,11 @@ type backgroundModel struct {
 	data     []data.Backgrounds
 	list     list.Model
 	selected string
+	footer   *footer
 }
 
 // Instantiates backgroundModel with a list of backgrounds
-func NewBackgroundModel() backgroundModel {
+func NewBackgroundModel(f *footer) backgroundModel {
 	d, err := data.NewBackgrounds()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)
@@ -32,7 +33,7 @@ func NewBackgroundModel() backgroundModel {
 
 	l.Title = "Choose a background:"
 
-	return backgroundModel{list: l, data: d}
+	return backgroundModel{list: l, data: d, footer: f}
 }
 
 func (b backgroundModel) Init() tea.Cmd {
@@ -53,6 +54,7 @@ func (b backgroundModel) Update(msg tea.Msg) (backgroundModel, tea.Cmd) {
 		case "esc": // Reset selection
 			b.list.ResetFilter()
 			b.list.Select(0)
+			b.footer.BackgroundSelected = "Background"
 			return b, nil
 		case "s":
 			if b.list.ShowStatusBar() {

@@ -15,10 +15,11 @@ type classModel struct {
 	data     []data.Classes
 	list     list.Model
 	selected string
+	footer   *footer
 }
 
 // Instantiates classModel with a list of classes
-func NewClassModel() classModel {
+func NewClassModel(f *footer) classModel {
 	d, err := data.NewClasses()
 	if err != nil || len(d) < 1 {
 		fmt.Println("Can't read from data source:", err)
@@ -33,7 +34,7 @@ func NewClassModel() classModel {
 
 	l.Title = "Choose a class:"
 
-	return classModel{data: d, list: l}
+	return classModel{data: d, list: l, footer: f}
 }
 
 func (c classModel) Init() tea.Cmd {
@@ -54,6 +55,7 @@ func (c classModel) Update(msg tea.Msg) (classModel, tea.Cmd) {
 		case "esc": // Reset selection
 			c.list.ResetFilter()
 			c.list.Select(0)
+			c.footer.ClassSelected = "Class"
 			return c, nil
 		case "s":
 			if c.list.ShowStatusBar() {
