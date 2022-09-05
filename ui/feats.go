@@ -51,6 +51,12 @@ func (f featModel) Update(msg tea.Msg) (featModel, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
+		case "enter", " ", "tab":
+			selected, ok := f.list.SelectedItem().(item)
+			if ok {
+				f.selected = string(selected)
+			}
+			return f, nil
 		case "esc": // Reset selection
 			f.list.ResetFilter()
 			f.list.Select(0)

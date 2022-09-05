@@ -53,6 +53,13 @@ func (r raceModel) Update(msg tea.Msg) (raceModel, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
+		case "enter", " ", "tab":
+			selected, ok := r.list.SelectedItem().(item)
+			if ok {
+				r.selected = string(selected)
+				r.footer.RaceSelected = r.selected
+			}
+			return r, nil
 		case "esc": // Reset selection
 			r.list.ResetFilter()
 			r.list.Select(0)

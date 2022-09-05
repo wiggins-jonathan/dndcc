@@ -52,6 +52,13 @@ func (c classModel) Update(msg tea.Msg) (classModel, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
+		case "enter", " ", "tab":
+			selected, ok := c.list.SelectedItem().(item)
+			if ok {
+				c.selected = string(selected)
+				c.footer.ClassSelected = c.selected
+			}
+			return c, nil
 		case "esc": // Reset selection
 			c.list.ResetFilter()
 			c.list.Select(0)

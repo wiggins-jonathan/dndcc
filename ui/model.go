@@ -66,58 +66,33 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ", "tab": // Save selection & switch state
 			switch m.state {
 			case showRaces:
-				selected, ok := m.races.list.SelectedItem().(item)
-				if ok { // Set selected item
-					m.races.selected = string(selected)
-					m.footer.RaceSelected = string(selected)
-				}
-
-				m.classes, cmd = m.classes.Update(msg)
+				m.races, cmd = m.races.Update(msg)
 				m.state++
-
 				return m, cmd
 			case showClasses:
-				selected, ok := m.classes.list.SelectedItem().(item)
-				if ok {
-					m.classes.selected = string(selected)
-					m.footer.ClassSelected = string(selected)
-				}
-
-				m.backgrounds, cmd = m.backgrounds.Update(msg)
+				m.classes, cmd = m.classes.Update(msg)
 				m.state++
-
 				return m, cmd
 			case showBackgrounds:
-				selected, ok := m.backgrounds.list.SelectedItem().(item)
-				if ok {
-					m.backgrounds.selected = string(selected)
-					m.footer.BackgroundSelected = string(selected)
-				}
-
-				m.feats, cmd = m.feats.Update(msg)
+				m.backgrounds, cmd = m.backgrounds.Update(msg)
 				m.state++
-
 				return m, cmd
 			case showFeats:
-				selected, ok := m.feats.list.SelectedItem().(item)
-				if ok {
-					m.feats.selected = string(selected)
-				}
-
+				m.feats, cmd = m.feats.Update(msg)
 				return m, cmd
 			}
 		case "shift+tab": // Go back to the previous selection
 			switch m.state {
 			case showClasses:
-				m.races, cmd = m.races.Update(msg)
-				m.state--
-				return m, cmd
-			case showBackgrounds:
 				m.classes, cmd = m.classes.Update(msg)
 				m.state--
 				return m, cmd
-			case showFeats:
+			case showBackgrounds:
 				m.backgrounds, cmd = m.backgrounds.Update(msg)
+				m.state--
+				return m, cmd
+			case showFeats:
+				m.feats, cmd = m.feats.Update(msg)
 				m.state--
 				return m, cmd
 			}

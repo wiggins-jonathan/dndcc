@@ -51,6 +51,13 @@ func (b backgroundModel) Update(msg tea.Msg) (backgroundModel, tea.Cmd) {
 		}
 
 		switch keypress := msg.String(); keypress {
+		case "enter", " ", "tab":
+			selected, ok := b.list.SelectedItem().(item)
+			if ok {
+				b.selected = string(selected)
+				b.footer.BackgroundSelected = b.selected
+			}
+			return b, nil
 		case "esc": // Reset selection
 			b.list.ResetFilter()
 			b.list.Select(0)
