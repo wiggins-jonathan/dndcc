@@ -3,8 +3,10 @@ package ui
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +34,7 @@ func NewRaceModel() raceModel {
 
 	l.Title = "Choose a race:"
 
-	return raceModel{list: l, data: d}
+	return raceModel{data: d, list: l}
 }
 
 func (r raceModel) Init() tea.Cmd {
@@ -66,5 +68,53 @@ func (r raceModel) Update(msg tea.Msg) (raceModel, tea.Cmd) {
 }
 
 func (r raceModel) View() string {
-	return "\n" + r.list.View()
+	details := func(r raceModel) string {
+		var size, speed, ability, proficiency, spellAbility, traits string
+		item, ok := r.list.SelectedItem().(item)
+		if ok {
+			for _, races := range r.data {
+				for _, race := range races.Race {
+					if string(item) == race.Name {
+						size = detailName.Render("\nSize: ") + race.Size
+						speed = detailName.Render("\nSpeed: ") + race.Speed
+
+						// ability is blank for custom lineage
+						if race.Ability != "" {
+							ability = detailName.Render("\nAbility: ") +
+								race.Ability
+						}
+
+						// proficiency & spellAbility has whitespace we need to
+						// trim and can also be blank
+						proficiency = strings.TrimSpace(race.Proficiency)
+						if proficiency != "" {
+							proficiency = detailName.Render("\nProficiencies: ") +
+								proficiency
+						}
+						spellAbility = strings.TrimSpace(race.SpellAbility)
+						if spellAbility != "" {
+							spellAbility = detailName.Render("\nSpell Ability: ") +
+								spellAbility
+						}
+
+						traits = "\n"
+						for i, trait := range race.Trait {
+							// the second trait is missing a newline character
+							if i == 1 {
+								traits += "\n"
+							}
+
+							traits += detailName.Render(trait.Name+": ") +
+								trait.Text
+						}
+					}
+				}
+			}
+		}
+		return "\n" + size + speed + ability + proficiency + spellAbility +
+			traits
+	}(r)
+
+	details = detailsStyle.Render(details)
+	return "\n" + lipgloss.JoinHorizontal(lipgloss.Top, r.list.View(), details)
 }
