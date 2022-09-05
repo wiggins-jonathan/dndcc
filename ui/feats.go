@@ -45,6 +45,9 @@ func (f featModel) Update(msg tea.Msg) (featModel, tea.Cmd) {
 		f.list.SetWidth(msg.Width)
 		return f, nil
 	case tea.KeyMsg:
+		if f.list.FilterState() == list.Filtering {
+			break // don't match keys if filtering
+		}
 		switch keypress := msg.String(); keypress {
 		case "esc": // Reset selection
 			f.list.ResetFilter()

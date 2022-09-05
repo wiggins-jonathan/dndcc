@@ -47,6 +47,10 @@ func (r raceModel) Update(msg tea.Msg) (raceModel, tea.Cmd) {
 		r.list.SetWidth(msg.Width)
 		return r, nil
 	case tea.KeyMsg:
+		if r.list.FilterState() == list.Filtering {
+			break // don't match keys if filtering
+		}
+
 		switch keypress := msg.String(); keypress {
 		case "esc": // Reset selection
 			r.list.ResetFilter()

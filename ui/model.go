@@ -57,11 +57,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		m.width = msg.Width
 	case tea.KeyMsg: // Key presses
-		// Don't match keys if filtering
-		if m.races.list.FilterState() == list.Filtering ||
-			m.classes.list.FilterState() == list.Filtering ||
-			m.backgrounds.list.FilterState() == list.Filtering {
-			break
+		if m.isFiltering() {
+			break // Don't match keys if filtering
 		}
 
 		switch keypress := msg.String(); keypress {
@@ -163,4 +160,15 @@ func (m model) View() string {
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, view, m.footer.View())
+}
+
+// clean this up with reflection
+func (m model) isFiltering() bool {
+	if m.races.list.FilterState() == list.Filtering ||
+		m.classes.list.FilterState() == list.Filtering ||
+		m.backgrounds.list.FilterState() == list.Filtering ||
+		m.feats.list.FilterState() == list.Filtering {
+		return true
+	}
+	return false
 }

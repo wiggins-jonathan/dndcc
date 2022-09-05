@@ -45,6 +45,10 @@ func (b backgroundModel) Update(msg tea.Msg) (backgroundModel, tea.Cmd) {
 		b.list.SetWidth(msg.Width)
 		return b, nil
 	case tea.KeyMsg:
+		if b.list.FilterState() == list.Filtering {
+			break // don't match keys if filtering
+		}
+
 		switch keypress := msg.String(); keypress {
 		case "esc": // Reset selection
 			b.list.ResetFilter()
