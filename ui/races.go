@@ -75,37 +75,34 @@ func (r raceModel) View() string {
 			for _, races := range r.data {
 				for _, race := range races.Race {
 					if string(item) == race.Name {
-						size = detailName.Render("\nSize: ") + race.Size
-						speed = detailName.Render("\nSpeed: ") + race.Speed
+						d := detailName.Render
+						size = d("\nSize: ") + race.Size
+						speed = d("\nSpeed: ") + race.Speed
 
 						// ability is blank for custom lineage
 						if race.Ability != "" {
-							ability = detailName.Render("\nAbility: ") +
-								race.Ability
+							ability = d("\nAbility: ") + race.Ability
 						}
 
 						// proficiency & spellAbility has whitespace we need to
 						// trim and can also be blank
 						proficiency = strings.TrimSpace(race.Proficiency)
 						if proficiency != "" {
-							proficiency = detailName.Render("\nProficiencies: ") +
-								proficiency
+							proficiency = d("\nProficiencies: ") + proficiency
 						}
 						spellAbility = strings.TrimSpace(race.SpellAbility)
 						if spellAbility != "" {
-							spellAbility = detailName.Render("\nSpell Ability: ") +
-								spellAbility
+							spellAbility = d("\nSpell Ability: ") + spellAbility
 						}
 
 						traits = "\n"
 						for i, trait := range race.Trait {
-							// the second trait is missing a newline character
+							// second trait is missing newline character
 							if i == 1 {
 								traits += "\n"
 							}
 
-							traits += detailName.Render(trait.Name+": ") +
-								trait.Text
+							traits += d(trait.Name+": ") + trait.Text
 						}
 					}
 				}
