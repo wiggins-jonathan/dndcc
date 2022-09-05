@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +33,7 @@ func NewFeatModel() featModel {
 
 	l.Title = "Choose a feat:"
 
-	return featModel{list: l, data: d}
+	return featModel{data: d, list: l}
 }
 
 func (f featModel) Init() tea.Cmd {
@@ -48,6 +49,7 @@ func (f featModel) Update(msg tea.Msg) (featModel, tea.Cmd) {
 		if f.list.FilterState() == list.Filtering {
 			break // don't match keys if filtering
 		}
+
 		switch keypress := msg.String(); keypress {
 		case "esc": // Reset selection
 			f.list.ResetFilter()
@@ -69,5 +71,29 @@ func (f featModel) Update(msg tea.Msg) (featModel, tea.Cmd) {
 }
 
 func (f featModel) View() string {
-	return "\n" + f.list.View()
+	details := func(f featModel) string {
+		item, ok := f.list.SelectedItem().(item)
+		if ok {
+			for _, feats := range f.data {
+				for _, feat := range feats.Feat {
+					if string(item) == feat.Name {
+						d := detailName.Render
+						prereq := d("\nPrerequisite: ") + feat.Prerequisite
+						text := "\n" + feat.Text
+
+						if feat.Prerequisite != "" {
+							return "\n" + prereq + text
+						}
+
+						return "\n" + text
+					}
+				}
+			}
+		}
+
+		return ""
+	}(f)
+
+	details = detailsStyle.Render(details)
+	return "\n" + lipgloss.JoinHorizontal(lipgloss.Top, f.list.View(), details)
 }
