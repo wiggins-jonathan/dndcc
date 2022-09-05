@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 	"gitlab.com/wiggins.jonathan/dndcc/data"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +33,7 @@ func NewClassModel() classModel {
 
 	l.Title = "Choose a class:"
 
-	return classModel{list: l, data: d}
+	return classModel{data: d, list: l}
 }
 
 func (c classModel) Init() tea.Cmd {
@@ -66,5 +67,28 @@ func (c classModel) Update(msg tea.Msg) (classModel, tea.Cmd) {
 }
 
 func (c classModel) View() string {
-	return "\n" + c.list.View()
+	details := func(c classModel) string {
+		item, ok := c.list.SelectedItem().(item)
+		if ok {
+			for _, class := range c.data {
+				if string(item) == class.Class.Name {
+					d := detailName.Render
+					hd := d("\nHD: ") + class.Class.Hd
+					proficiency := d("\nProficiencies: ") + class.Class.Proficiency
+					numSkills := d("\nNum Skills: ") + class.Class.NumSkills
+					armor := d("\nArmor Proficiencies: ") + class.Class.Armor
+					weapons := d("\nWeapon Proficiencies: ") + class.Class.Weapons
+					tools := d("\nTools Proficiencies: ") + class.Class.Tools
+					wealth := d("\nStarting Wealth: ") + class.Class.Wealth
+
+					return "\n" + hd + proficiency + numSkills + armor +
+						weapons + tools + wealth
+				}
+			}
+		}
+		return ""
+	}(c)
+
+	details = detailsStyle.Render(details)
+	return "\n" + lipgloss.JoinHorizontal(lipgloss.Top, c.list.View(), details)
 }
