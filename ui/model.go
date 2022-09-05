@@ -11,15 +11,6 @@ const (
 	minWidth  = 30
 )
 
-var (
-	lg                = lipgloss.NewStyle()
-	titleStyle        = lg.MarginLeft(2).Foreground(lipgloss.Color("#0099ff"))
-	itemStyle         = lg.PaddingLeft(4)
-	selectedItemStyle = lg.MarginLeft(4).Background(lipgloss.Color("#ff3399")).Bold(true)
-	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
-)
-
 type state int
 
 const (
