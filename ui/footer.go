@@ -1,17 +1,22 @@
 package ui
 
 import (
+	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type footer struct {
+	help               help.Model
+	keymap             *keyMap
 	RaceSelected       string
 	ClassSelected      string
 	BackgroundSelected string
 }
 
 func NewFooter() *footer {
-	return &footer{"Race", "Class", "Background"}
+	h := help.New()
+	k := DefaultKeyMap()
+	return &footer{h, k, "Race", "Class", "Background"}
 }
 
 func (f *footer) Init() tea.Cmd {
@@ -38,5 +43,13 @@ func (f *footer) View() string {
 		backgroundSelected = footerSelected.Render(f.BackgroundSelected)
 	}
 
-	return "\n" + raceSelected + classSelected + backgroundSelected
+	help := helpStyle.Render("\n" + f.help.View(f.keymap))
+	return "\n" + raceSelected + classSelected + backgroundSelected + help
+}
+
+type ToggleFooterMsg struct{}
+
+// sends a msg to toggle the help in the footer
+func (f *footer) ToggleHelp() ToggleFooterMsg {
+	return ToggleFooterMsg{}
 }
