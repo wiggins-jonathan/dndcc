@@ -1,12 +1,16 @@
-# dndcc - an interactive 5th Edition D&D Character Creator for the CLI
+# dndcc
+An interactive 5th Edition D&D character creator for the command line.
 
-## Install Binary
+## Installation
+---
+
+### Download
 - Download a binary from the
   [release page](https://gitlab.com/wiggins.jonathan/dndcc/-/releases).
 - Set binary as executable: `chmod +x dndcc`
 - Execute binary: `./dndcc`
 
-## Install From Source
+### Build from source
 - Clone this repo or download archive from release page.
 - Install using Go: `go install`
 - Run: `dndcc`
