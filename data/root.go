@@ -1,5 +1,5 @@
 /*
-The source of all our data is located at https://github.com/kinkofer/FightClub5eXML
+The source of all our data is located at https://github.com/ogre-project/FightClub5eXML
 This repo has an almost exhaustive source in xml format, divided by rule book.
 It also divides the data by its canonical value, i.e. - Core Rule books,
 homebrew, Unearthed Arcana, etc. To get just the Core only data, parse the
@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-const BaseUrl = `https://raw.githubusercontent.com/kinkofer/FightClub5eXML/master`
+const BaseUrl = `https://raw.githubusercontent.com/ogre-project/FightClub5eXML/master`
 
 type CoreOnly struct {
 	XMLName xml.Name `xml:"collection"`
