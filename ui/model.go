@@ -96,8 +96,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state--
 				return m, cmd
 			}
-		case "ctrl+c":
-			return m, tea.Quit
 		}
 	}
 
